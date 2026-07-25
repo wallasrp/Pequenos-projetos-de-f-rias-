@@ -28,12 +28,30 @@ class Pessoa
     }
 
     public void InsereDados()
-    {
-        Console.WriteLine("Digite o nome da Pessoa:");
-        Nome = Console.ReadLine();
-        Console.WriteLine("Digite o numero de telefone da pessoa:");
-        Telefone = int.Parse(Console.ReadLine());
-    }
+ {
+
+     bool DIC = false;//Dados Iseridos corretamente
+     do
+     {
+         Console.WriteLine("Digite algo para preencher o campo pessoa:");
+         Console.WriteLine("Digite o nome da Pessoa:");
+         Nome = Console.ReadLine();
+     } while (string.IsNullOrWhiteSpace(Nome));
+     do
+     {
+         Console.WriteLine("Digite o numero de telefone da pessoa:");
+         DIC = int.TryParse(Console.ReadLine(), out Telefone);
+
+         if (DIC)
+         {
+             Console.WriteLine($"Telefone cadastrado com sucesso");
+         }
+         else
+         {
+             Console.WriteLine("para digitar o telefone por favor insira penas numeros");
+         }
+     } while (!DIC);
+ }
 
     public void ExibirInformaçao()
     {
@@ -55,12 +73,12 @@ class Pessoa
 
     public void VerificaContato(Pessoa p, Guid Id)//serve para verificar se este contao ja existe na agenda telefonica
     {
-        foreach (Pessoa x in pessoas)// uso inadequado do foreach pois sera exibido a mensagem uma quantidade desncessaria de vezes
+        foreach (Pessoa x in pessoas)
         {
             if (p.id == x.id)
             {
-                //if(x.id == Id)
                 Console.WriteLine("Pessoa encontrada na lista!");
+                break;
             }
             else
             {
