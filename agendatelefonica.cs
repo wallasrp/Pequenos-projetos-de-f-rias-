@@ -71,11 +71,11 @@ class Pessoa
         pessoas.Remove(P);
     }
 
-    public void VerificaContato(Pessoa p, Guid Id)//serve para verificar se este contao ja existe na agenda telefonica
+    public void VerificaContato(Pessoa p, string nome)//serve para verificar se este contao ja existe na agenda telefonica
     {
         foreach (Pessoa x in pessoas)
         {
-            if (p.id == x.id)
+            if (p.nome == x.nome)
             {
                 Console.WriteLine("Pessoa encontrada na lista!");
                 break;
@@ -164,9 +164,8 @@ class program
                 {
                     Pessoa p = new Pessoa();
                     p.InsereDados();
-                    agenda.VerificaContato(p, p.id);
+                    agenda.VerificaContato(p, p.nome);
                     p.ExibirInformaçao();
-                    break;
                 }
             }
             else if (n != 1 && n != 2 && n != 3 && n != 4)
