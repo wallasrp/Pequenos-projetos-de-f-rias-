@@ -1,22 +1,65 @@
-﻿using System.Collections;
-using System.Runtime.Intrinsics.Arm;
+using System;
+using System.Collections.Generic;
+using Microsoft.Win32.SafeHandles;
+using System.Security.Cryptography.X509Certificates;
+using System.Runtime.CompilerServices;
+using System.Collections;
+using System.ComponentModel.Design;
 
+
+//Ideia pricipal desse codigo aplicar classes aninhadas para aprendizado,não so classe aninhada com tambem todo o que foi estudado em POO
 class Aluno
 {
-    public int NDM { get; set; }//numero de matricula
-    public char[] Nome { get; set; }
-    public int Idade { get; set; }
-
-    public double Nota { get; set; }
-
-
-    public Aluno(int ndm, char[] nome, int idade, double nota)
+    private Guid NDM;
+    public Guid ndm
     {
-        this.NDM = ndm;
-        this.Nome = nome;
-        this.Idade = idade;
-        this.Nota = nota;
+        set { ndm = new Guid(); }
     }
+    public string Nome;
+    public string nome
+    {
+        get { return nome; }
+        set { nome = value; }
+    }
+    public int Idade;
+    public int idade
+    {
+        get { return idade; }
+        set { idade = value; }
+    }
+    public double Nota;
+    public double nota
+    {
+        get { return nota; }
+        set { nota = value; }
+    }
+
+    public void InsereDado()
+    {
+        do
+        {
+            Console.WriteLine("Digite o nome do aluno");
+            Nome = Console.ReadLine();
+        } while (string.IsNullOrWhiteSpace(Nome));
+
+        bool v = false;
+
+        do
+        {
+            Console.WriteLine("Digite a idade do aluno:");
+            v = int.TryParse(Console.ReadLine(), out Idade);
+
+            if (v)
+            {
+                Console.WriteLine("Idade valida.");
+            }
+            else
+            {
+                Console.WriteLine("Idade invalida");
+            }
+        } while (!v);
+    }
+
     public void MostraAluno()
     {
         Console.WriteLine($"o Nome do aluno e {Nome},seu numero de matricula e {NDM} e sua idade e {Idade} e sua nota {Nota}");
@@ -32,26 +75,62 @@ class Escola
     {
         public Aluno Aluno { get; set; }
         public int QDNS = 35;// Qauntidade de carteiras disponiveis por sala
-        List<Aluno> Listadechamada = new List<Aluno>();
-
-        public void AdicionaAluno(Aluno alun)
+        Dictionary<string, int> Listadechamada = new Dictionary<string, int>();
+        public void AdicionaAluno(string nome,int idade)
         {
-            Listadechamada.Add(alun);
+            Listadechamada.Add(nome,idade);
+        }
+
+        public void AdicionaRemove(string x,int n)
+        {
+            Listadechamada.Remove(x,out n);
+        }
+
+        public bool VerificaAluno(int x)
+        {
+            Console.WriteLine("Faz chamada");
+
+            if (Listadechamada.Count == 0)
+            {
+                Console.WriteLine("Não ha nenhum aluno nesta lista ainda");
+                return false;
+            }
+            else if (Listadechamada.ContainsValue(x))
+            {
+                Console.WriteLine("O aluno veio a aula");
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("O aluno falou a aula");
+                return false;
+            }
         }
     }
     public class ControledeAlunos
     {
 
-        private Hashtable alunos = new Hashtable();
+        Hashtable alunos = new Hashtable();
 
-        public void AdicionaAluno(Aluno alun)
+        public void AdicionaAluno(string n,int idade)
         {
-            alunos.Add(alun.NDM, "nome");
+            alunos.Add(n,idade);
         }
 
-        public void RemoveAluno(int ndm)
+        public void RemoveAluno(string nome)
         {
-            alunos.Remove(ndm);
+            foreach(string n in alunos.Keys)
+            {
+                if (n == nome)
+                {
+                    alunos.Remove(nome);
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("aluno não encontrado");
+                }
+            }
         }
 
         public void LeTodosAlunos()
@@ -64,21 +143,21 @@ class Escola
     }
 }
 
+enum OpcaoEscolha
+{
+    Ad = 1,
+    Rm = 2
+}
+
 
 
 class Program
 {
     public static void Main(string[] args)
     {
-        int na;
+        int na,opcao;
         Escola.ControledeAlunos xaluno = new Escola.ControledeAlunos();
-
-        /*perguntar a quantidade maxima de alunos permitida na escola fazendo um while que enquato o numero maximo for menor que 
-         a quantidade a atual se pode entrar mais alunos,a partir da idade saber quantas sala estão disponiveis e se ainda a vaga para ele,
-         e usar tratamenro de erro ao usar numero,
-        onder so deve escrever o nome dele e onde so se pode usar numero não puder usar letras
-        cria o objeto escola e seu numero de sala com x quantidade de sala para cada semestre
-        */
+        Escola.SaladeAula sala = new Escola.SaladeAula();
 
         Console.WriteLine("Digite o numero atual de alunos da Escola Municipla Antonio Tereza:");
         na = int.Parse(Console.ReadLine());
@@ -89,43 +168,27 @@ class Program
             Console.WriteLine("Escolha uma das opções para poder fazer o controle de alunos da escola:");
             Console.WriteLine("1:Adição de um novo aluno a Escola");
             Console.WriteLine("2:Remoção de um aluno antigo");
-            int opcao = int.Parse(Console.ReadLine());
+            opcao = int.Parse(Console.ReadLine());
 
-            if (opcao == 1)
+            OpcaoEscolha op = (OpcaoEscolha) opcao;
+
+            if (op == OpcaoEscolha.Ad)
             {
-
-                Console.WriteLine("Digite o numero de identificação do aluno:");
-                int NDM = int.Parse(Console.ReadLine());
-                Console.WriteLine("O seu nome:");
-                char[] Nome = Console.ReadLine().ToCharArray();
-                foreach (char letra in Nome)
-                {
-                    if (char.IsDigit(letra))
-                    {
-                        Console.WriteLine("tipo de caracter invalido!");
-                    }
-                    Console.WriteLine(letra);
-                }
-                Console.WriteLine("Idade:");
-                int Idade = int.Parse(Console.ReadLine());
-                if (Idade == 10)
-                {
-                    //adicionar o aluno em X sala perante sua idade
-                }
-                Console.WriteLine("e nota:");
-                double Nota = double.Parse(Console.ReadLine());
-
-                Aluno x = new Aluno(NDM, Nome, Idade, Nota);
-                Escola.ControledeAlunos aluno = new Escola.ControledeAlunos();
-                aluno.AdicionaAluno(x);
+                Aluno x = new Aluno();
+                x.InsereDado();
+                xaluno.AdicionaAluno(x.Nome,x.Idade);
+                sala.AdicionaAluno(x.Nome, x.Idade);
                 Console.WriteLine("Aluno adicionado com sucesso!");
                 Escola.QADA++;
             }
-            else if (opcao == 2)
+            else if (op == OpcaoEscolha.Rm)
             {
-                Console.WriteLine("informe o numero de indentificação do aluno que vc deseja remover");
-                int ndm = int.Parse(Console.ReadLine());
-                xaluno.RemoveAluno(ndm);
+                Console.WriteLine("informe o nome do aluno que vc deseja remover");
+                string nome = Console.ReadLine();
+                Console.WriteLine("informe o nome do aluno que vc deseja remover");
+                int idade = int.Parse(Console.ReadLine());
+                xaluno.RemoveAluno(nome);
+                sala.AdicionaRemove(nome,idade);
                 Console.WriteLine("Aluno removido com sucesso!");
                 Escola.QADA--;
             }
@@ -134,8 +197,6 @@ class Program
                 Console.WriteLine("não e possivel adicionar mais nenhum aluno");
             }
         } while (Escola.QMDA > Escola.QADA);
-
-        Escola.ControledeAlunos n = new Escola.ControledeAlunos();
-        n.LeTodosAlunos();
+        xaluno.LeTodosAlunos();
     }
 }
