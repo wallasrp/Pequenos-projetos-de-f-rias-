@@ -13,25 +13,26 @@ class Aluno
     private Guid NDM;
     public Guid ndm
     {
-        set { ndm = new Guid(); }
+        get { return NDM; }
+        set { NDM = value; }
     }
-    public string Nome;
+    private string Nome;
     public string nome
     {
-        get { return nome; }
-        set { nome = value; }
+        get { return Nome; }
+        set { Nome = value; }
     }
-    public int Idade;
+    private int Idade;
     public int idade
     {
-        get { return idade; }
-        set { idade = value; }
+        get { return Idade; }
+        set { Idade = value; }
     }
-    public double Nota;
+    private double Nota;
     public double nota
     {
-        get { return nota; }
-        set { nota = value; }
+        get { return Nota; }
+        set { Nota = value; }
     }
 
     public void InsereDado()
@@ -58,6 +59,8 @@ class Aluno
                 Console.WriteLine("Idade invalida");
             }
         } while (!v);
+
+        NDM = new Guid();
     }
 
     public void MostraAluno()
@@ -75,18 +78,28 @@ class Escola
     {
         public Aluno Aluno { get; set; }
         public int QDNS = 35;// Qauntidade de carteiras disponiveis por sala
-        Dictionary<string, int> Listadechamada = new Dictionary<string, int>();
-        public void AdicionaAluno(string nome,int idade)
+        Dictionary<Guid, Aluno> Listadechamada = new Dictionary<Guid, Aluno>();
+        /* ponto importante!com dictionary não e necessario percorrer todo aquele processo de percorrer
+        a lista e etc,o proprio dictionary ja tem seus comando que vão direto no que se esta procurando*/
+        public void AdicionaAluno(Guid id,Aluno aluno)
         {
-            Listadechamada.Add(nome,idade);
+            Listadechamada.Add(id,aluno);
         }
 
-        public void AdicionaRemove(string x,int n)
+        public void AdicionaRemove(Guid Al)
         {
-            Listadechamada.Remove(x,out n);
+            if (Listadechamada.ContainsKey(Al))
+            {
+                Console.WriteLine("Aluno removido com sucesso!");
+                Listadechamada.Remove(Al);
+            }
+            else
+            {
+                Console.WriteLine("Aluno não encontrado para executar remoção");
+            }
         }
 
-        public bool VerificaAluno(int x)
+        public bool VerificaAluno(Guid x)
         {
             Console.WriteLine("Faz chamada");
 
@@ -95,7 +108,7 @@ class Escola
                 Console.WriteLine("Não ha nenhum aluno nesta lista ainda");
                 return false;
             }
-            else if (Listadechamada.ContainsValue(x))
+            else if (Listadechamada.ContainsKey(x))
             {
                 Console.WriteLine("O aluno veio a aula");
                 return true;
@@ -112,25 +125,66 @@ class Escola
 
         Hashtable alunos = new Hashtable();
 
-        public void AdicionaAluno(string n,int idade)
+        public void controle()
         {
-            alunos.Add(n,idade);
+            int na, opcao;
+            Escola.ControledeAlunos xaluno = new Escola.ControledeAlunos();
+            Escola.SaladeAula sala = new Escola.SaladeAula();
+            Aluno aluno = new Aluno();
+
+            Console.WriteLine("Digite o numero atual de alunos da Escola Municipla Antonio Tereza:");
+            na = int.Parse(Console.ReadLine());
+            do
+            {
+
+                Console.WriteLine("Controle de alunos da Escola Antonio Tereza");
+                Console.WriteLine("Escolha uma das opções para poder fazer o controle de alunos da escola:");
+                Console.WriteLine("1:Adição de um novo aluno a Escola");
+                Console.WriteLine("2:Remoção de um aluno antigo");
+                opcao = int.Parse(Console.ReadLine());
+
+                OpcaoEscolha op = (OpcaoEscolha)opcao;
+
+                if (op == OpcaoEscolha.Ad)
+                {
+                    aluno.InsereDado();
+                    xaluno.AdicionaAluno(aluno.ndm, aluno);
+                    sala.AdicionaAluno(aluno.ndm, aluno);
+                    Console.WriteLine("Aluno adicionado com sucesso!");
+                    Escola.QADA++;
+                }
+                else if (op == OpcaoEscolha.Rm)
+                {
+                    xaluno.RemoveAluno(aluno.ndm);
+                    sala.AdicionaRemove(aluno.ndm);
+                    Escola.QADA--;
+                }
+                if (Escola.QMDA < Escola.QADA)
+                {
+                    Console.WriteLine("não e possivel adicionar mais nenhum aluno");
+                }
+            } while (Escola.QMDA > Escola.QADA);
+            xaluno.LeTodosAlunos();
         }
 
-        public void RemoveAluno(string nome)
+        public void AdicionaAluno(Guid id,Aluno N)
         {
-            foreach(string n in alunos.Keys)
+            alunos.Add(id,N);
+        }
+
+        public void RemoveAluno(Guid identificador)
+        {
+            if (alunos.ContainsKey(identificador))
             {
-                if (n == nome)
-                {
-                    alunos.Remove(nome);
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("aluno não encontrado");
-                }
+                Console.WriteLine("Aluno removido com sucesso!");
+                alunos.Remove(identificador);
             }
+
+            else
+            {
+                Console.WriteLine("aluno não encontrado");
+            }
+            
         }
 
         public void LeTodosAlunos()
@@ -155,48 +209,11 @@ class Program
 {
     public static void Main(string[] args)
     {
-        int na,opcao;
+        int na, opcao;
         Escola.ControledeAlunos xaluno = new Escola.ControledeAlunos();
         Escola.SaladeAula sala = new Escola.SaladeAula();
 
-        Console.WriteLine("Digite o numero atual de alunos da Escola Municipla Antonio Tereza:");
-        na = int.Parse(Console.ReadLine());
-        do
-        {
+        xaluno.controle();
 
-            Console.WriteLine("Controle de alunos da Escola Antonio Tereza");
-            Console.WriteLine("Escolha uma das opções para poder fazer o controle de alunos da escola:");
-            Console.WriteLine("1:Adição de um novo aluno a Escola");
-            Console.WriteLine("2:Remoção de um aluno antigo");
-            opcao = int.Parse(Console.ReadLine());
-
-            OpcaoEscolha op = (OpcaoEscolha) opcao;
-
-            if (op == OpcaoEscolha.Ad)
-            {
-                Aluno x = new Aluno();
-                x.InsereDado();
-                xaluno.AdicionaAluno(x.Nome,x.Idade);
-                sala.AdicionaAluno(x.Nome, x.Idade);
-                Console.WriteLine("Aluno adicionado com sucesso!");
-                Escola.QADA++;
-            }
-            else if (op == OpcaoEscolha.Rm)
-            {
-                Console.WriteLine("informe o nome do aluno que vc deseja remover");
-                string nome = Console.ReadLine();
-                Console.WriteLine("informe o nome do aluno que vc deseja remover");
-                int idade = int.Parse(Console.ReadLine());
-                xaluno.RemoveAluno(nome);
-                sala.AdicionaRemove(nome,idade);
-                Console.WriteLine("Aluno removido com sucesso!");
-                Escola.QADA--;
-            }
-            if (Escola.QMDA < Escola.QADA)
-            {
-                Console.WriteLine("não e possivel adicionar mais nenhum aluno");
-            }
-        } while (Escola.QMDA > Escola.QADA);
-        xaluno.LeTodosAlunos();
     }
 }
